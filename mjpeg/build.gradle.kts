@@ -46,6 +46,9 @@ dependencies {
     implementation(libs.ktor.server.forwarded.header)
     implementation(libs.ktor.server.websockets)
     implementation(libs.ktor.server.status.pages)
+
+//    mjpeg player
+    implementation(libs.okhttp)
 }
 
 configurations.all {

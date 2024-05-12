@@ -85,6 +85,7 @@ ktor-server-default-headers = { module = "io.ktor:ktor-server-default-headers", 
 ktor-server-forwarded-header = { module = "io.ktor:ktor-server-forwarded-header", version.ref = "ktor" }
 ktor-server-websockets = { module = "io.ktor:ktor-server-websockets", version.ref = "ktor" }
 ktor-server-status-pages = { module = "io.ktor:ktor-server-status-pages", version.ref = "ktor" }
+android-mjpeg-view = { module = "com.perthcpe23.dev:android-mjpeg-view", version = "1.1.2" }
 
 #PlayStore-WebRTC
 play-services-tasks = { module = "com.google.android.gms:play-services-tasks", version.ref = "play-services-tasks" }

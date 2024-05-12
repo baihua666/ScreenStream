@@ -55,6 +55,7 @@ import info.dvkr.screenstream.notification.NotificationPermission
 import info.dvkr.screenstream.tile.TileActionService
 import info.dvkr.screenstream.ui.tabs.ScreenStreamTab
 import info.dvkr.screenstream.ui.tabs.about.AboutTab
+import info.dvkr.screenstream.ui.tabs.player.PlayerTab
 import info.dvkr.screenstream.ui.tabs.settings.SettingsTab
 import info.dvkr.screenstream.ui.tabs.stream.StreamTab
 import kotlinx.coroutines.flow.StateFlow
@@ -97,7 +98,7 @@ internal val LocalContentBoundsInWindow = staticCompositionLocalOf { Rect.Zero }
 @Composable
 private fun MainContent(
     modifier: Modifier = Modifier,
-    tabs: Array<ScreenStreamTab> = arrayOf(StreamTab, SettingsTab, AboutTab)
+    tabs: Array<ScreenStreamTab> = arrayOf(StreamTab, PlayerTab, SettingsTab, AboutTab)
 ) {
     val selectedTabIndex = rememberSaveable { mutableIntStateOf(0) }
 

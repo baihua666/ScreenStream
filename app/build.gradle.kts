@@ -114,6 +114,10 @@ dependencies {
     // MJPEG
     implementation(project(":mjpeg"))
 
+//    MJPEG PLAYER
+    implementation (libs.android.mjpeg.view)
+
+
     // PlayStore-WebRTC
     "PlayStoreImplementation"(project(":webrtc"))
     "PlayStoreImplementation"(libs.play.services.tasks)
