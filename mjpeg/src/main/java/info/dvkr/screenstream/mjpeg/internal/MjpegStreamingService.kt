@@ -54,7 +54,7 @@ import kotlin.random.Random
 
 @Scope(MjpegKoinScope::class)
 @Scoped(binds = [MjpegStreamingService::class])
-internal class MjpegStreamingService(
+public class MjpegStreamingService(
     @InjectedParam private val service: MjpegModuleService,
     @InjectedParam private val mutableMjpegStateFlow: MutableStateFlow<MjpegState>,
     private val networkHelper: NetworkHelper,
@@ -94,33 +94,33 @@ internal class MjpegStreamingService(
     private var previousError: MjpegError? = null
     // All vars must be read/write on this (WebRTC-HT) thread
 
-    internal sealed class InternalEvent(priority: Int) : MjpegEvent(priority) {
-        data class InitState(val clearIntent: Boolean = true) : InternalEvent(Priority.RESTART_IGNORE)
-        data class DiscoverAddress(val reason: String, val attempt: Int) : InternalEvent(Priority.RESTART_IGNORE)
-        data class StartServer(val interfaces: List<MjpegNetInterface>) : InternalEvent(Priority.RESTART_IGNORE)
-        data object StartStream : InternalEvent(Priority.RESTART_IGNORE)
-        data object StartStopFromWebPage : InternalEvent(Priority.RESTART_IGNORE)
-        data object ScreenOff : InternalEvent(Priority.RESTART_IGNORE)
-        data class ConfigurationChange(val newConfig: Configuration) : InternalEvent(Priority.RESTART_IGNORE) {
+    public sealed class InternalEvent(priority: Int) : MjpegEvent(priority) {
+        public data class InitState(val clearIntent: Boolean = true) : InternalEvent(Priority.RESTART_IGNORE)
+        public data class DiscoverAddress(val reason: String, val attempt: Int) : InternalEvent(Priority.RESTART_IGNORE)
+        public data class StartServer(val interfaces: List<MjpegNetInterface>) : InternalEvent(Priority.RESTART_IGNORE)
+        public data object StartStream : InternalEvent(Priority.RESTART_IGNORE)
+        public data object StartStopFromWebPage : InternalEvent(Priority.RESTART_IGNORE)
+        public data object ScreenOff : InternalEvent(Priority.RESTART_IGNORE)
+        public data class ConfigurationChange(val newConfig: Configuration) : InternalEvent(Priority.RESTART_IGNORE) {
             override fun toString(): String = "ConfigurationChange"
         }
-        data class CapturedContentResize(val width: Int, val height: Int) : InternalEvent(Priority.RESTART_IGNORE)
-        data class Clients(val clients: List<MjpegState.Client>) : InternalEvent(Priority.RESTART_IGNORE)
-        data class RestartServer(val reason: RestartReason) : InternalEvent(Priority.RESTART_IGNORE)
-        data object UpdateStartBitmap : InternalEvent(Priority.RESTART_IGNORE)
+        public data class CapturedContentResize(val width: Int, val height: Int) : InternalEvent(Priority.RESTART_IGNORE)
+        public data class Clients(val clients: List<MjpegState.Client>) : InternalEvent(Priority.RESTART_IGNORE)
+        public data class RestartServer(val reason: RestartReason) : InternalEvent(Priority.RESTART_IGNORE)
+        public data object UpdateStartBitmap : InternalEvent(Priority.RESTART_IGNORE)
 
-        data class Error(val error: MjpegError) : InternalEvent(Priority.RECOVER_IGNORE)
+        public  data class Error(val error: MjpegError) : InternalEvent(Priority.RECOVER_IGNORE)
 
-        data class Destroy(val destroyJob: CompletableJob) : InternalEvent(Priority.DESTROY_IGNORE)
-        data class Traffic(val time: Long, val traffic: List<MjpegState.TrafficPoint>) : InternalEvent(Priority.DESTROY_IGNORE) {
+        public data class Destroy(val destroyJob: CompletableJob) : InternalEvent(Priority.DESTROY_IGNORE)
+        public data class Traffic(val time: Long, val traffic: List<MjpegState.TrafficPoint>) : InternalEvent(Priority.DESTROY_IGNORE) {
             override fun toString(): String = "Traffic(time=$time)"
         }
     }
 
-    internal sealed class RestartReason(private val msg: String) {
-        object ConnectionChanged : RestartReason("")
-        class SettingsChanged(msg: String) : RestartReason(msg)
-        class NetworkSettingsChanged(msg: String) : RestartReason(msg)
+    public sealed class RestartReason(private val msg: String) {
+        public object ConnectionChanged : RestartReason("")
+        public class SettingsChanged(msg: String) : RestartReason(msg)
+        public class NetworkSettingsChanged(msg: String) : RestartReason(msg)
 
         override fun toString(): String = "${javaClass.simpleName}[$msg]"
     }
@@ -201,7 +201,7 @@ internal class MjpegStreamingService(
     }
 
     @MainThread
-    suspend fun destroyService() {
+    public suspend fun destroyService() {
         XLog.d(getLog("destroyService"))
 
         wakeLock?.apply { if (isHeld) release() }
@@ -224,7 +224,7 @@ internal class MjpegStreamingService(
 
     @AnyThread
     @Synchronized
-    internal fun sendEvent(event: MjpegEvent, timeout: Long = 0) {
+    public fun sendEvent(event: MjpegEvent, timeout: Long = 0) {
         if (destroyPending) {
             XLog.w(getLog("sendEvent", "Pending destroy: Ignoring event => $event"))
             return

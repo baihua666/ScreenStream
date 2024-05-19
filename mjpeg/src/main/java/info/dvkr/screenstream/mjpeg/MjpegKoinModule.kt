@@ -14,4 +14,4 @@ public class MjpegKoinScope : KoinScopeComponent {
     override val scope: Scope by lazy(LazyThreadSafetyMode.NONE) { createScope(this) }
 }
 
-internal const val MjpegKoinQualifier: String = "MjpegStreamingModule"
+public const val MjpegKoinQualifier: String = "MjpegStreamingModule"

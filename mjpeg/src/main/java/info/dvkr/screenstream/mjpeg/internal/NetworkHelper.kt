@@ -18,7 +18,7 @@ import java.util.Enumeration
 
 @Scope(MjpegKoinScope::class)
 @SuppressLint("WifiManagerPotentialLeak")
-internal class NetworkHelper(context: Context) {
+public class NetworkHelper(context: Context) {
 
     private val networkInterfaceCommonNameArray =
         arrayOf("lo", "eth", "lan", "wlan", "en", "p2p", "net", "ppp", "wigig", "ap", "rmnet", "rmnet_data")
@@ -77,7 +77,7 @@ internal class NetworkHelper(context: Context) {
         return Collections.enumeration(netList)
     }
 
-    fun getNetInterfaces(
+    public fun getNetInterfaces(
         useWiFiOnly: Boolean, enableIPv6: Boolean, enableLocalHost: Boolean, localHostOnly: Boolean
     ): List<MjpegNetInterface> {
         XLog.d(getLog("getNetInterfaces", "Invoked"))

@@ -14,10 +14,10 @@ import org.koin.core.qualifier.named
 
 public class MjpegModuleService : StreamingModuleService() {
 
-    internal companion object {
+    public companion object {
         internal fun getIntent(context: Context): Intent = Intent(context, MjpegModuleService::class.java)
 
-        internal fun startService(context: Context, intent: Intent) {
+        public fun startService(context: Context, intent: Intent) {
             XLog.d(getLog("MjpegModuleService.startService", "Run intent: ${intent.extras}"))
             val importance = ActivityManager.RunningAppProcessInfo().also { ActivityManager.getMyMemoryState(it) }.importance
             XLog.i(getLog("MjpegModuleService.startService", "RunningAppProcessInfo.importance: $importance"))

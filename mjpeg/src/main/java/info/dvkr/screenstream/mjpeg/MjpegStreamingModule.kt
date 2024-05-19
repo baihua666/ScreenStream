@@ -50,6 +50,12 @@ public class MjpegStreamingModule : StreamingModule {
     override val isStreaming: Flow<Boolean>
         get() = _mjpegStateFlow.map { it.isStreaming }
 
+    public val waitingCastPermission: Flow<Boolean>
+        get() = _mjpegStateFlow.map { it.waitingCastPermission }
+
+    public val serverNetInterfaces: Flow<List<MjpegState.ServerNetInterface>>
+        get() = _mjpegStateFlow.map { it.serverNetInterfaces }
+
     private val _mjpegStateFlow: MutableStateFlow<MjpegState> = MutableStateFlow(MjpegState())
 
     init {
@@ -133,7 +139,7 @@ public class MjpegStreamingModule : StreamingModule {
     }
 
     @MainThread
-    internal fun sendEvent(event: MjpegEvent) {
+    public fun sendEvent(event: MjpegEvent) {
         XLog.d(getLog("sendEvent", "Event $event"))
         check(Looper.getMainLooper().isCurrentThread) { "Only main thread allowed" }
 
