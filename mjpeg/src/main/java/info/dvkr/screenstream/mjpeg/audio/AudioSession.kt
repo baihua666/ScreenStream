@@ -127,22 +127,14 @@ public class AudioSession {
 
     private var samplesReadyCallback: SystemAudioRecorder.SamplesReadyCallback = object : SystemAudioRecorder.SamplesReadyCallback {
         override fun onAudioRecordSamplesReady(samples: AudioSamples?) {
-            Log.d(TAG, "onAudioRecordSamplesReady: ${samples?.data?.size}")
-            if (!isRecording ||samples == null
-//                || RemoteWebSocketServer.getInstance() == null
-                ) {
+            if (!isRecording ||samples == null) {
                 return
             }
-//            val message = Message()
-//            message.command = Command.AUDIO_FRAME
-//            message.data = samples
-//            message.index = RemoteWebSocketServer.getInstance().nextIndex()
-//            RemoteWebSocketServer.getInstance().sendMessage(message)
 
 //            testPlayAudio(samples)
 
             if (asyncEncode) {
-                Log.d(TAG, "onAudioRecordSamplesReady: recordQueue=${recordQueue.size}")
+//                Log.d(TAG, "onAudioRecordSamplesReady: recordQueue=${recordQueue.size}")
                 synchronized(recordQueue) {
                     recordQueue.add(samples)
                 }
