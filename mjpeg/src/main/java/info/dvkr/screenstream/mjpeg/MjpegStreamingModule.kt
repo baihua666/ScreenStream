@@ -58,6 +58,9 @@ public class MjpegStreamingModule : StreamingModule {
 
     private val _mjpegStateFlow: MutableStateFlow<MjpegState> = MutableStateFlow(MjpegState())
 
+    public var mjpegStreamingService: MjpegStreamingService? = null
+
+
     init {
         _streamingServiceState //TODO
             .onEach { XLog.i(getLog("init", "State: $it")) }
@@ -99,12 +102,15 @@ public class MjpegStreamingModule : StreamingModule {
             StreamingModule.State.PendingStart -> {
                 val scope = MjpegKoinScope().scope
                 _streamingServiceState.value = StreamingModule.State.Running(scope)
-                scope.get<MjpegStreamingService> { parametersOf(service, _mjpegStateFlow) }.start()
+                mjpegStreamingService = scope.get<MjpegStreamingService> { parametersOf(service, _mjpegStateFlow) }
+                mjpegStreamingService?.start()
+//                scope.get<MjpegStreamingService> { parametersOf(service, _mjpegStateFlow) }.start()
             }
 
             else -> throw RuntimeException("Unexpected state: $state")
         }
     }
+
 
     @MainThread
     override suspend fun stopModule() {

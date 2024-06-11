@@ -3,7 +3,6 @@ package info.dvkr.screenstream.mjpeg.internal
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.ComponentCallbacks
-import android.content.Context
 import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
@@ -23,6 +22,7 @@ import android.os.HandlerThread
 import android.os.Looper
 import android.os.Message
 import android.os.PowerManager
+import android.util.Log
 import android.widget.Toast
 import androidx.annotation.AnyThread
 import androidx.annotation.MainThread
@@ -31,6 +31,7 @@ import info.dvkr.screenstream.common.getLog
 import info.dvkr.screenstream.mjpeg.MjpegKoinScope
 import info.dvkr.screenstream.mjpeg.MjpegModuleService
 import info.dvkr.screenstream.mjpeg.R
+import info.dvkr.screenstream.mjpeg.audio.AudioSession
 import info.dvkr.screenstream.mjpeg.settings.MjpegSettings
 import info.dvkr.screenstream.mjpeg.ui.MjpegError
 import info.dvkr.screenstream.mjpeg.ui.MjpegState
@@ -93,6 +94,8 @@ public class MjpegStreamingService(
     private var currentError: MjpegError? = null
     private var previousError: MjpegError? = null
     // All vars must be read/write on this (WebRTC-HT) thread
+
+    private var useSystemAudio = false
 
     public sealed class InternalEvent(priority: Int) : MjpegEvent(priority) {
         public data class InitState(val clearIntent: Boolean = true) : InternalEvent(Priority.RESTART_IGNORE)
@@ -263,6 +266,7 @@ public class MjpegStreamingService(
 
             mediaProjectionIntent = null
             stopStream()
+            useSystemAudio = false
 
             currentError = if (cause is MjpegError) cause else MjpegError.UnknownError(cause)
         } finally {
@@ -285,7 +289,10 @@ public class MjpegStreamingService(
                 slowClients = emptyList()
                 isStreaming = false
                 waitingForPermission = false
-                if (event.clearIntent) mediaProjectionIntent = null
+                if (event.clearIntent)  {
+                    mediaProjectionIntent = null
+                    useSystemAudio = false
+                }
                 mediaProjection = null
                 bitmapCapture = null
 
@@ -334,7 +341,7 @@ public class MjpegStreamingService(
             is InternalEvent.StartStream -> {
                 mediaProjectionIntent?.let {
                     check(Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE) { "MjpegEvent.StartStream: UPSIDE_DOWN_CAKE" }
-                    sendEvent(MjpegEvent.StartProjection(it))
+                    sendEvent(MjpegEvent.StartProjection(it, useSystemAudio))
                 } ?: run {
                     waitingForPermission = true
                 }
@@ -365,6 +372,7 @@ public class MjpegStreamingService(
                     val captureStarted = bitmapCapture.start()
                     if (captureStarted && Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
                         mediaProjectionIntent = event.intent
+                        useSystemAudio = event.useSystemAudio
                         service.registerComponentCallbacks(componentCallback)
                     }
 
@@ -378,6 +386,11 @@ public class MjpegStreamingService(
                     this@MjpegStreamingService.isStreaming = true
                     this@MjpegStreamingService.mediaProjection = mediaProjection
                     this@MjpegStreamingService.bitmapCapture = bitmapCapture
+
+                    if (event.useSystemAudio) {
+                        startAudioRecorder(mediaProjection)
+                    }
+
                 }
 
             is MjpegEvent.Intentable.StopStream -> {
@@ -504,6 +517,7 @@ public class MjpegStreamingService(
             mediaProjection = null
 
             isStreaming = false
+            stopAudioRecord()
         } else {
             XLog.d(getLog("stopStream", "Not streaming. Ignoring."))
         }
@@ -566,5 +580,29 @@ public class MjpegStreamingService(
         canvas.drawText(message, (bitmap.width - bounds.width()) / 2f, 324f, paint)
         startBitmap = bitmap
         return bitmap
+    }
+
+    public var audioStateFlow: MutableStateFlow<ByteArray> = MutableStateFlow(ByteArray(0))
+
+    private var audioSession: AudioSession? = null
+    private fun startAudioRecorder(mediaProjection: MediaProjection) {
+        if (audioSession == null) {
+            audioSession = AudioSession()
+            audioSession?.listener = object : AudioSession.AudioSessionCallback {
+                override fun onAacData(data: ByteArray) {
+                    val success = audioStateFlow.tryEmit(data)
+                    if (!success) {
+                        Log.d("onAacData", "audioStateFlow emit false")
+                    }
+                }
+            }
+        }
+        audioSession?.start(mediaProjection)
+    }
+
+
+    private fun stopAudioRecord() {
+        audioSession?.stop()
+        audioSession = null
     }
 }

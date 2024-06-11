@@ -1,6 +1,8 @@
 package info.dvkr.screenstream.ui
 
+import android.Manifest
 import android.os.Build
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
@@ -39,6 +41,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.layout.boundsInWindow
 import androidx.compose.ui.layout.onPlaced
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -46,8 +49,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toIntRect
 import androidx.compose.ui.unit.toRect
+import androidx.core.app.ActivityCompat
 import androidx.window.core.layout.WindowWidthSizeClass
 import info.dvkr.screenstream.R
+import info.dvkr.screenstream.common.findActivity
+import info.dvkr.screenstream.common.isPermissionGranted
+import info.dvkr.screenstream.common.shouldShowPermissionRationale
 import info.dvkr.screenstream.common.ui.conditional
 import info.dvkr.screenstream.logger.AppLogger
 import info.dvkr.screenstream.logger.CollectingLogsUi
@@ -90,6 +97,17 @@ internal fun ScreenStreamContent(
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
         NotificationPermission()
         TileActionService.AddTileRequest()
+    }
+
+    val context = LocalContext.current
+    val permission = Manifest.permission.RECORD_AUDIO
+    if (context.isPermissionGranted(permission)) {
+        Log.d("ScreenStreamContent", "isPermissionGranted")
+    }
+    else {
+        Log.d("ScreenStreamContent", "isPermissionGranted false")
+        val activity = remember(context) { context.findActivity() }
+        ActivityCompat.requestPermissions(activity, listOf(permission).toTypedArray(), 100)
     }
 }
 

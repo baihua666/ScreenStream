@@ -53,7 +53,7 @@ internal fun MjpegMainScreenUI(
     BoxWithConstraints(modifier = modifier) {
         MediaProjectionPermission(
             requestCastPermission = waitingCastPermission.value,
-            onPermissionGranted = { intent -> sendEvent(MjpegEvent.StartProjection(intent)) },
+            onPermissionGranted = { intent -> sendEvent(MjpegEvent.StartProjection(intent, true)) },
             onPermissionDenied = { if (waitingCastPermission.value) sendEvent(MjpegEvent.CastPermissionsDenied) },
             requiredDialogTitle = stringResource(id = R.string.mjpeg_stream_cast_permission_required_title),
             requiredDialogText = stringResource(id = R.string.mjpeg_stream_cast_permission_required)

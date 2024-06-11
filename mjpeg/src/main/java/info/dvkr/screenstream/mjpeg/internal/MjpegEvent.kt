@@ -2,6 +2,7 @@ package info.dvkr.screenstream.mjpeg.internal
 
 import android.content.Context
 import android.content.Intent
+import android.media.projection.MediaProjection
 import android.os.Build
 import android.os.Parcelable
 import info.dvkr.screenstream.mjpeg.MjpegModuleService
@@ -34,6 +35,6 @@ public open class MjpegEvent(public val priority: Int) {
     }
 
     public data object CastPermissionsDenied : MjpegEvent(Priority.RECOVER_IGNORE)
-    public data class StartProjection(val intent: Intent) : MjpegEvent(Priority.RECOVER_IGNORE)
+    public data class StartProjection(val intent: Intent, var useSystemAudio: Boolean) : MjpegEvent(Priority.RECOVER_IGNORE)
     internal data object CreateNewPin : MjpegEvent(Priority.DESTROY_IGNORE)
 }
